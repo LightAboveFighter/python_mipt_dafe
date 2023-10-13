@@ -32,6 +32,15 @@ M      |   1000
 
 
 def intToRoman(num: int) -> str:
+    Romans = {"M":1000, "CM":900, "D":500, "CD":400, "C":100, "XC":90, "L":50, "XL":40, "X":10, "IX":9, "V":5, "IV":4, "I":1}
+    ans = ""
+    for Rom_sym in Romans:
+        while Romans[Rom_sym] <= num:
+            num -= Romans[Rom_sym]
+            ans += Rom_sym
+    return ans
+    
+
     """ Перевод числа из десятичной системы записи в Римскую
 
         Вход:
@@ -44,7 +53,7 @@ def intToRoman(num: int) -> str:
     """
     pass
 
-
+#число меньше чем 3999
 if __name__ == "__main__":
     assert intToRoman(3) == "III"
     assert intToRoman(58) == "LVIII"

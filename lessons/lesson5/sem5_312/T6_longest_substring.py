@@ -8,7 +8,7 @@
 
 def1:
     слово w называется ПОДСЛОВОМ слова s, если
-    существуют слова x и y, такие что: s = x * w * y,
+    существуют слова x и y, такие что: s = x * w * y,    x + w + y в питоне
     т.е. x - это префикс слова s, а y - суффикс.
 
 def2:
@@ -31,7 +31,13 @@ def lengthOfLongestSubstring(s: str) -> int:
             subs_len: int
                 длина максимального особого подслова 
     """
-    pass
+    cnt = 0
+    
+    for i in range(len(s)-1):
+        for j in range(i+1, len(s)):
+                if len(s[i:j]) == len(set(s[i:j])):
+                    cnt = max(cnt, len(s[i:j]))
+    return cnt
 
 
 if __name__ == "__main__":

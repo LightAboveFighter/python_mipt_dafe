@@ -7,6 +7,9 @@
 """
 
 def is_anagram(word1: str, word2: str) -> bool:
+
+    return set(word2).issubset(set(word1))
+
     """ Проверка возможности составления слова word2
         из букв слова word1
 
@@ -24,6 +27,6 @@ def is_anagram(word1: str, word2: str) -> bool:
     """
     pass
 
-
+print(is_anagram("abc", "aabc"))
 if __name__ == "__main__":
     pass
