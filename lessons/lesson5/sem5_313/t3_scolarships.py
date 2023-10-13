@@ -20,6 +20,35 @@
 """
 
 def is_scolarship_correct(best_students, active_students, delinquent_studens, lagging_students, all_students, scolarships):
+    #B, A, D, L, all, S          B[i] = "id number"
+    B, A, D, L, all_s, S = set(best_students), set(active_students), set(delinquent_studens), set(lagging_students), set(all_students), set(scolarships)
+
+    if not(B.issubset(S)):
+        return False
+    
+    A_not_B = A.difference(B)
+    A_not_B_scolar = A_not_B.intersection(S)
+    if ( 2*len(A_not_B_scolar) > len(A_not_B)):
+        print(A_not_B_scolar, A_not_B)
+        print(1)
+        return False
+    
+    if ( len(D.intersection(S)) > 1):
+        print(2)
+        return False
+    
+    if ( L.intersection(S)):
+        print(3)
+        return False
+    
+    if ( len( ( all_s - A - B - D - L).intersection(S)) > 3 ):
+        print(4)
+        return False
+    return True
+    
+
+
+
     """ Проверка корректности распределения стипендий по соц.группам студентов.
         
         Вход:
@@ -42,6 +71,15 @@ def is_scolarship_correct(best_students, active_students, delinquent_studens, la
                 True - если правила соблюдены, а иначе False.
     """
     pass
+
+B =[1, 2, 3]
+A = [3, 4, 5, 6, 7, 8]
+L = [6, 7, 9, 10, 11]
+D = [8, 7, 11, 12, 13]
+all_s = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+S = [1, 2, 3, 4, 7, 15, 16]
+
+print(is_scolarship_correct(B, A, D, L, all_s, S))
 
 
 if __name__ == "__main__":
