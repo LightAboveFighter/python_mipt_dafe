@@ -2,7 +2,8 @@
 Задача 1: подсчёт количества уникальных символов в строке
 """
 
-def unique(string: str) -> int:
+def unique(my_string: str) -> int:
+    return len(set(my_string))
     """ Подсчёт количества уникальных символов в строке
 
         Вход:
@@ -15,5 +16,6 @@ def unique(string: str) -> int:
     """
     pass
 
+print(unique("erh"))
 if __name__ == "__main__":
     pass
