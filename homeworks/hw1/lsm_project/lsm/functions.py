@@ -4,7 +4,7 @@
 
 
 from typing import Optional
-# from numbers import Real       # раскомментируйте при необходимости
+from numbers import Real       # раскомментируйте при необходимости
 
 from lsm_project.event_logger.event_logger import EventLogger
 
@@ -15,6 +15,8 @@ from lsm_project.lsm.models import (
     LSMLines,
 )
 
+import os
+
 
 PRECISION = 3                   # константа для точности вывода
 event_logger = EventLogger()    # для логирования
@@ -22,7 +24,7 @@ event_logger = EventLogger()    # для логирования
 
 def get_lsm_description(
     abscissa: list[float], ordinates: list[float],
-    mismatch_strategy: MismatchStrategies = MismatchStrategies.FALL
+    mismatch_strategy: MismatchStrategies = MismatchStrategies.CUT
 ) -> LSMDescription:
     """
     Функции для получения описания рассчитаной зависимости
@@ -36,13 +38,39 @@ def get_lsm_description(
 
     global event_logger
 
+    if not isinstance(abscissa, list):
+        if not (list(abscissa)):
+            event_logger.error("Can't turn abscissa into list")
+            raise TypeError
+        abscissa = list(abscissa)
+    if not isinstance(ordinates, list):
+        if not (list(ordinates)):
+            event_logger.error("Can't turn ordinates into list")
+            raise TypeError
+        ordinates = list(ordinates)
+
+    if len(abscissa) <= 2 or len(ordinates) <= 2:
+        event_logger.error("Lenght of abscissa or ordinates is lesser 3")
+        raise ValueError
+
+    if len(abscissa) != len(ordinates):
+        abscissa, ordinates = _process_mismatch(abscissa, ordinates, mismatch_strategy)
+    if not _is_valid_measurments(abscissa + ordinates):
+        event_logger.error("Wrong type abscissa - ordinates lists' members")
+        raise ValueError
+
+    description = _get_lsm_description(abscissa, ordinates)
+    incline = description.incline
+    shift = description.shift
+    incline_error = description.incline_error
+    shift_error = description.shift_error
     # ваш код
     # эту строчку можно менять
     return LSMDescription(
-        incline=0,
-        shift=0,
-        incline_error=0,
-        shift_error=0
+        incline,
+        shift,
+        incline_error,
+        shift_error
     )
 
 
@@ -60,14 +88,37 @@ def get_lsm_lines(
     :return: структура типа LSMLines
     """
 
+    if lsm_description is None:
+        lsm_description = get_lsm_description(abscissa, ordinates, MismatchStrategies.CUT)
+    elif not isinstance(lsm_description, LSMDescription):
+        event_logger.error("Wrong type of lms_description")
+        raise TypeError
+
+    event_logger.info("Started calculating lines: predicted, above and under")
+
+    a, b = lsm_description.incline, lsm_description.shift
+    error_rate_a = lsm_description.incline_error
+
+    error_rate_b = lsm_description.shift_error
+
+    line_predicted = []
+    line_above = []
+    line_under = []
+
+    for i in range(len(abscissa)):
+        line_predicted.append(b + a * abscissa[i])
+        line_above.append((a + error_rate_a) * abscissa[i] + b + error_rate_b)
+        line_under.append((a - error_rate_a) * abscissa[i] + b - error_rate_b)
+    event_logger.info("Calculated lines: predicted, above and under")
+
     # ваш код
     # эту строчку можно менять
     return LSMLines(
-        abscissa=abscissa,
-        ordinates=ordinates,
-        line_predicted=ordinates,
-        line_above=ordinates,
-        line_under=ordinates
+        abscissa,
+        ordinates,
+        line_predicted,
+        line_above,
+        line_under
     )
 
 
@@ -84,16 +135,35 @@ def get_report(
     """
     global PRECISION
 
+    report = ("========================================LSM computing result" +
+              "========================================\n\n[INFO]: incline:" +
+              f" {lsm_description.incline:.{PRECISION}f};\n[INFO]: shift:" +
+              f" {lsm_description.shift:.{PRECISION}f};\n[INFO]: incline error:" +
+              f" {lsm_description.incline_error:.{PRECISION}f};\n" +
+              f"[INFO]: shift error: {lsm_description.shift_error:.{PRECISION}f}" +
+              ";\n\n====================================================" +
+              "================================================")
+
+    if len(path_to_save) != 0:
+        if os.path.exists(path_to_save):
+            file = open(path_to_save, "w")
+            file.write(report)
+            file.close()
+            event_logger.info("Report saved to file")
     # ваш код
     # эту строчку можно менять
-    return 'report'
+    return report
 
 
 # служебная функция для валидации
 def _is_valid_measurments(measurments: list[float]) -> bool:
+    for i in range(len(measurments)):
+        if not (isinstance(measurments[i], Real)):
+            return False
+
     # ваш код
     # эту строчку можно менять
-    return False
+    return True
 
 
 # служебная функция для обработки несоответствия размеров
@@ -103,9 +173,24 @@ def _process_mismatch(
 ) -> tuple[list[float], list[float]]:
     global event_logger
 
+    abs_changed, ord_changed = abscissa, ordinates
+
+    if len(abscissa) != len(ordinates):
+        if mismatch_strategy == MismatchStrategies.FALL:
+            event_logger.error("MismatchStrategies.FALL")
+            raise RuntimeError
+        elif mismatch_strategy == MismatchStrategies.CUT:
+            event_logger.info("Turning abscissa and ordinates into same lenght")
+            min_len = min(len(abscissa), len(ordinates))
+            abs_changed = abscissa[:min_len]
+            ord_changed = ordinates[:min_len]
+        else:
+            event_logger.error("Incorrect mismatch strategy")
+            raise ValueError
+
     # ваш код
     # эту строчку можно менять
-    return [], []
+    return abs_changed, ord_changed
 
 
 # служебная функция для получения статистик
@@ -114,13 +199,28 @@ def _get_lsm_statistics(
 ) -> LSMStatistics:
     global event_logger, PRECISION
 
+    n = len(abscissa)
+
+    abscissa_mean = sum(abscissa)/n
+    ordinate_mean = sum(ordinates)/n
+
+    abs_squared_mean = 0
+    product_mean = 0
+    for i in range(n):
+        abs_squared_mean += abscissa[i]**2
+        product_mean += abscissa[i]*ordinates[i]
+
+    abs_squared_mean = abs_squared_mean/n
+    product_mean = product_mean/n
+    event_logger.info("Average components calculated")
+
     # ваш код
     # эту строчку можно менять
     return LSMStatistics(
-        abscissa_mean=0,
-        ordinate_mean=0,
-        product_mean=0,
-        abs_squared_mean=0
+        abscissa_mean,
+        ordinate_mean,
+        product_mean,
+        abs_squared_mean
     )
 
 
@@ -130,11 +230,37 @@ def _get_lsm_description(
 ) -> LSMDescription:
     global event_logger, PRECISION
 
+    n = len(abscissa)
+
+    event_logger.info("Started calculating")
+    stata = _get_lsm_statistics(abscissa, ordinates)
+
+    av_abs = stata.abscissa_mean
+    av_ord = stata.ordinate_mean
+    av_qrt_abs = stata.abs_squared_mean
+    av_product = stata.product_mean
+
+    incline = (av_product - av_abs * av_ord) / (av_qrt_abs - av_abs**2)
+    event_logger.info("Incline calculated")
+    shift = av_ord - incline * av_abs
+    event_logger.info("Shift calculated")
+
+    disp_res = 0
+    for i in range(n):
+        disp_res += (ordinates[i] - incline * abscissa[i] - shift) ** 2
+    disp_res /= (n - 2)
+
+    incline_error = (disp_res / (n * (av_qrt_abs - av_abs**2))) ** 0.5
+    event_logger.info("Incline error calculated")
+
+    shift_error = ((disp_res * av_qrt_abs) / (n * (av_qrt_abs - av_abs**2))) ** 0.5
+    event_logger.info("Shift error calculated")
+
     # ваш код
     # эту строчку можно менять
     return LSMDescription(
-        incline=0,
-        shift=0,
-        incline_error=0,
-        shift_error=0
+        incline,
+        shift,
+        incline_error,
+        shift_error
     )
