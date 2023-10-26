@@ -15,7 +15,11 @@ from lsm_project.lsm.models import (
     LSMLines,
 )
 
+<<<<<<< HEAD
 # import os
+=======
+import os
+>>>>>>> ac9774b (add MNK HM 26.10.23)
 
 
 PRECISION = 3                   # константа для точности вывода
@@ -51,12 +55,18 @@ def get_lsm_description(
             raise TypeError
         ordinates = list(ordinates)
 
+<<<<<<< HEAD
     if len(abscissa) <= min_list_length or len(ordinates) <= min_list_length:
         event_logger.error(f"Lenght of abscissa or ordinates is lesser {min_list_length + 1}")
+=======
+    if len(abscissa) <= 2 or len(ordinates) <= 2:
+        event_logger.error("Lenght of abscissa or ordinates is lesser 3")
+>>>>>>> ac9774b (add MNK HM 26.10.23)
         raise ValueError
 
     if len(abscissa) != len(ordinates):
         abscissa, ordinates = _process_mismatch(abscissa, ordinates, mismatch_strategy)
+<<<<<<< HEAD
     # if not _is_valid_measurments(abscissa + ordinates):
     #     event_logger.error("Wrong type abscissa - ordinates lists' members")
     #     raise ValueError
@@ -71,6 +81,25 @@ def get_lsm_description(
     # ваш код
     # эту строчку можно менять
     return description
+=======
+    if not _is_valid_measurments(abscissa + ordinates):
+        event_logger.error("Wrong type abscissa - ordinates lists' members")
+        raise ValueError
+
+    description = _get_lsm_description(abscissa, ordinates)
+    incline = description.incline
+    shift = description.shift
+    incline_error = description.incline_error
+    shift_error = description.shift_error
+    # ваш код
+    # эту строчку можно менять
+    return LSMDescription(
+        incline,
+        shift,
+        incline_error,
+        shift_error
+    )
+>>>>>>> ac9774b (add MNK HM 26.10.23)
 
 
 def get_lsm_lines(
@@ -100,6 +129,7 @@ def get_lsm_lines(
 
     error_rate_b = lsm_description.shift_error
 
+<<<<<<< HEAD
     line_predicted = [b + a * abscissa[i] for i in range(len(abscissa))]
     line_above = [(a + error_rate_a) * abscissa[i] +
                   b + error_rate_b for i in range(len(abscissa))]
@@ -116,6 +146,16 @@ def get_lsm_lines(
     #     line_predicted.append(predicted_elem)
     #     line_above.append(above_elem)
     #     line_under.append(under_elem)
+=======
+    line_predicted = []
+    line_above = []
+    line_under = []
+
+    for i in range(len(abscissa)):
+        line_predicted.append(b + a * abscissa[i])
+        line_above.append((a + error_rate_a) * abscissa[i] + b + error_rate_b)
+        line_under.append((a - error_rate_a) * abscissa[i] + b - error_rate_b)
+>>>>>>> ac9774b (add MNK HM 26.10.23)
     event_logger.info("Calculated lines: predicted, above and under")
 
     # ваш код
@@ -151,6 +191,7 @@ def get_report(
                     size_str_report*char_end_report
                     ]
 
+<<<<<<< HEAD
     # report = "LSM computing result".center(100, "=") + "\n"
     # report.join("\n", f"[INFO]: incline: {lsm_description.incline:.{PRECISION}f};\n")
     # report += f"[INFO]: shift: {lsm_description.shift:.{PRECISION}f};\n"
@@ -166,6 +207,23 @@ def get_report(
         event_logger.info("Report saved to file")
         # else:
         #     event_logger.warning("Report path doesn't exist")
+=======
+    report = ("========================================LSM computing result" +
+              "========================================\n\n[INFO]: incline:" +
+              f" {lsm_description.incline:.{PRECISION}f};\n[INFO]: shift:" +
+              f" {lsm_description.shift:.{PRECISION}f};\n[INFO]: incline error:" +
+              f" {lsm_description.incline_error:.{PRECISION}f};\n" +
+              f"[INFO]: shift error: {lsm_description.shift_error:.{PRECISION}f}" +
+              ";\n\n====================================================" +
+              "================================================")
+
+    if len(path_to_save) != 0:
+        if os.path.exists(path_to_save):
+            file = open(path_to_save, "w")
+            file.write(report)
+            file.close()
+            event_logger.info("Report saved to file")
+>>>>>>> ac9774b (add MNK HM 26.10.23)
     # ваш код
     # эту строчку можно менять
     return report
@@ -173,8 +231,13 @@ def get_report(
 
 # служебная функция для валидации
 def _is_valid_measurments(measurments: list[float]) -> bool:
+<<<<<<< HEAD
     for elem in measurments:
         if not isinstance(elem, Real):
+=======
+    for i in range(len(measurments)):
+        if not (isinstance(measurments[i], Real)):
+>>>>>>> ac9774b (add MNK HM 26.10.23)
             return False
 
     # ваш код
@@ -189,6 +252,7 @@ def _process_mismatch(
 ) -> tuple[list[float], list[float]]:
     global event_logger
 
+<<<<<<< HEAD
     # if len(abscissa) != len(ordinates):
     if mismatch_strategy == MismatchStrategies.FALL:
         event_logger.error("MismatchStrategies.FALL")
@@ -209,6 +273,26 @@ def _process_mismatch(
     # ваш код
     # эту строчку можно менять
     return abscissa, ordinates
+=======
+    abs_changed, ord_changed = abscissa, ordinates
+
+    if len(abscissa) != len(ordinates):
+        if mismatch_strategy == MismatchStrategies.FALL:
+            event_logger.error("MismatchStrategies.FALL")
+            raise RuntimeError
+        elif mismatch_strategy == MismatchStrategies.CUT:
+            event_logger.info("Turning abscissa and ordinates into same lenght")
+            min_len = min(len(abscissa), len(ordinates))
+            abs_changed = abscissa[:min_len]
+            ord_changed = ordinates[:min_len]
+        else:
+            event_logger.error("Incorrect mismatch strategy")
+            raise ValueError
+
+    # ваш код
+    # эту строчку можно менять
+    return abs_changed, ord_changed
+>>>>>>> ac9774b (add MNK HM 26.10.23)
 
 
 # служебная функция для получения статистик
@@ -217,14 +301,29 @@ def _get_lsm_statistics(
 ) -> LSMStatistics:
     global event_logger, PRECISION
 
+<<<<<<< HEAD
     event_logger.info("Started calculating average components")
+=======
+>>>>>>> ac9774b (add MNK HM 26.10.23)
     n = len(abscissa)
 
     abscissa_mean = sum(abscissa)/n
     ordinate_mean = sum(ordinates)/n
+<<<<<<< HEAD
     abs_squared_mean = sum([elem**2 for elem in abscissa])/n
     product_mean = sum([elem_a*elem_o for (elem_a, elem_o) in zip(abscissa, ordinates)])/n
 
+=======
+
+    abs_squared_mean = 0
+    product_mean = 0
+    for i in range(n):
+        abs_squared_mean += abscissa[i]**2
+        product_mean += abscissa[i]*ordinates[i]
+
+    abs_squared_mean = abs_squared_mean/n
+    product_mean = product_mean/n
+>>>>>>> ac9774b (add MNK HM 26.10.23)
     event_logger.info("Average components calculated")
 
     # ваш код
@@ -245,16 +344,28 @@ def _get_lsm_description(
 
     n = len(abscissa)
 
+<<<<<<< HEAD
     stata = _get_lsm_statistics(abscissa, ordinates)
+=======
+    event_logger.info("Started calculating")
+    stata = _get_lsm_statistics(abscissa, ordinates)
+
+>>>>>>> ac9774b (add MNK HM 26.10.23)
     av_abs = stata.abscissa_mean
     av_ord = stata.ordinate_mean
     av_qrt_abs = stata.abs_squared_mean
     av_product = stata.product_mean
 
     incline = (av_product - av_abs * av_ord) / (av_qrt_abs - av_abs**2)
+<<<<<<< HEAD
     event_logger.info("Line: Incline calculated")
     shift = av_ord - incline * av_abs
     event_logger.info("Line: Shift calculated")
+=======
+    event_logger.info("Incline calculated")
+    shift = av_ord - incline * av_abs
+    event_logger.info("Shift calculated")
+>>>>>>> ac9774b (add MNK HM 26.10.23)
 
     disp_res = 0
     for i in range(n):
@@ -262,10 +373,17 @@ def _get_lsm_description(
     disp_res /= (n - 2)
 
     incline_error = (disp_res / (n * (av_qrt_abs - av_abs**2))) ** 0.5
+<<<<<<< HEAD
     event_logger.info("Line: Incline error calculated")
 
     shift_error = ((disp_res * av_qrt_abs) / (n * (av_qrt_abs - av_abs**2))) ** 0.5
     event_logger.info("Line: Shift error calculated")
+=======
+    event_logger.info("Incline error calculated")
+
+    shift_error = ((disp_res * av_qrt_abs) / (n * (av_qrt_abs - av_abs**2))) ** 0.5
+    event_logger.info("Shift error calculated")
+>>>>>>> ac9774b (add MNK HM 26.10.23)
 
     # ваш код
     # эту строчку можно менять
