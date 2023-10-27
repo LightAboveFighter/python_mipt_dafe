@@ -135,21 +135,20 @@ def get_report(
     """
     global PRECISION
 
-    report = ("========================================LSM computing result" +
-              "========================================\n\n[INFO]: incline:" +
-              f" {lsm_description.incline:.{PRECISION}f};\n[INFO]: shift:" +
-              f" {lsm_description.shift:.{PRECISION}f};\n[INFO]: incline error:" +
-              f" {lsm_description.incline_error:.{PRECISION}f};\n" +
-              f"[INFO]: shift error: {lsm_description.shift_error:.{PRECISION}f}" +
-              ";\n\n====================================================" +
-              "================================================")
-
+    report = "LSM computing result".center(100, "=") + "\n\n"
+    report += f"[INFO]: incline: {lsm_description.incline:.{PRECISION}f};\n"
+    report += f"[INFO]: shift: {lsm_description.shift:.{PRECISION}f};\n"
+    report += f"[INFO]: incline error: {lsm_description.incline_error:.{PRECISION}f};\n"
+    report += f"[INFO]: shift error: {lsm_description.shift_error:.{PRECISION}f};\n\n"
+    report += 100*"="
     if len(path_to_save) != 0:
         if os.path.exists(path_to_save):
             file = open(path_to_save, "w")
             file.write(report)
             file.close()
             event_logger.info("Report saved to file")
+        else:
+            event_logger.warning("Report path doesn't exist")
     # ваш код
     # эту строчку можно менять
     return report
@@ -173,24 +172,26 @@ def _process_mismatch(
 ) -> tuple[list[float], list[float]]:
     global event_logger
 
-    abs_changed, ord_changed = abscissa, ordinates
-
     if len(abscissa) != len(ordinates):
         if mismatch_strategy == MismatchStrategies.FALL:
             event_logger.error("MismatchStrategies.FALL")
             raise RuntimeError
         elif mismatch_strategy == MismatchStrategies.CUT:
+            abs_changed, ord_changed = abscissa, ordinates
+
             event_logger.info("Turning abscissa and ordinates into same lenght")
             min_len = min(len(abscissa), len(ordinates))
             abs_changed = abscissa[:min_len]
             ord_changed = ordinates[:min_len]
+            event_logger.warning("Some elements of abscissa/ordinates were removed")
+            return abs_changed, ord_changed
         else:
             event_logger.error("Incorrect mismatch strategy")
             raise ValueError
 
     # ваш код
     # эту строчку можно менять
-    return abs_changed, ord_changed
+    return abscissa, ordinates
 
 
 # служебная функция для получения статистик
@@ -199,6 +200,7 @@ def _get_lsm_statistics(
 ) -> LSMStatistics:
     global event_logger, PRECISION
 
+    event_logger.info("Started calculating average components")
     n = len(abscissa)
 
     abscissa_mean = sum(abscissa)/n
@@ -232,18 +234,16 @@ def _get_lsm_description(
 
     n = len(abscissa)
 
-    event_logger.info("Started calculating")
     stata = _get_lsm_statistics(abscissa, ordinates)
-
     av_abs = stata.abscissa_mean
     av_ord = stata.ordinate_mean
     av_qrt_abs = stata.abs_squared_mean
     av_product = stata.product_mean
 
     incline = (av_product - av_abs * av_ord) / (av_qrt_abs - av_abs**2)
-    event_logger.info("Incline calculated")
+    event_logger.info("Line: Incline calculated")
     shift = av_ord - incline * av_abs
-    event_logger.info("Shift calculated")
+    event_logger.info("Line: Shift calculated")
 
     disp_res = 0
     for i in range(n):
@@ -251,10 +251,10 @@ def _get_lsm_description(
     disp_res /= (n - 2)
 
     incline_error = (disp_res / (n * (av_qrt_abs - av_abs**2))) ** 0.5
-    event_logger.info("Incline error calculated")
+    event_logger.info("Line: Incline error calculated")
 
     shift_error = ((disp_res * av_qrt_abs) / (n * (av_qrt_abs - av_abs**2))) ** 0.5
-    event_logger.info("Shift error calculated")
+    event_logger.info("Line: Shift error calculated")
 
     # ваш код
     # эту строчку можно менять
