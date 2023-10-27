@@ -193,6 +193,7 @@ def get_report(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     # report = "LSM computing result".center(100, "=") + "\n"
     # report.join("\n", f"[INFO]: incline: {lsm_description.incline:.{PRECISION}f};\n")
     # report += f"[INFO]: shift: {lsm_description.shift:.{PRECISION}f};\n"
@@ -219,13 +220,18 @@ def get_report(
               "================================================")
 
 =======
+=======
+>>>>>>> 4e5463d (add 27.10.23 MNK HM)
     report = "LSM computing result".center(100, "=") + "\n\n"
     report += f"[INFO]: incline: {lsm_description.incline:.{PRECISION}f};\n"
     report += f"[INFO]: shift: {lsm_description.shift:.{PRECISION}f};\n"
     report += f"[INFO]: incline error: {lsm_description.incline_error:.{PRECISION}f};\n"
     report += f"[INFO]: shift error: {lsm_description.shift_error:.{PRECISION}f};\n\n"
     report += 100*"="
+<<<<<<< HEAD
 >>>>>>> 9aab8e6 (add 27.10.23 MNK HM)
+=======
+>>>>>>> 4e5463d (add 27.10.23 MNK HM)
     if len(path_to_save) != 0:
         if os.path.exists(path_to_save):
             file = open(path_to_save, "w")
@@ -233,11 +239,16 @@ def get_report(
             file.close()
             event_logger.info("Report saved to file")
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> ac9774b (add MNK HM 26.10.23)
 =======
         else:
             event_logger.warning("Report path doesn't exist")
 >>>>>>> 9aab8e6 (add 27.10.23 MNK HM)
+=======
+        else:
+            event_logger.warning("Report path doesn't exist")
+>>>>>>> 4e5463d (add 27.10.23 MNK HM)
     # ваш код
     # эту строчку можно менять
     return report
@@ -268,6 +279,7 @@ def _process_mismatch(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     # if len(abscissa) != len(ordinates):
     if mismatch_strategy == MismatchStrategies.FALL:
         event_logger.error("MismatchStrategies.FALL")
@@ -293,6 +305,8 @@ def _process_mismatch(
 
 =======
 >>>>>>> 9aab8e6 (add 27.10.23 MNK HM)
+=======
+>>>>>>> 4e5463d (add 27.10.23 MNK HM)
     if len(abscissa) != len(ordinates):
         if mismatch_strategy == MismatchStrategies.FALL:
             event_logger.error("MismatchStrategies.FALL")
@@ -313,11 +327,15 @@ def _process_mismatch(
     # ваш код
     # эту строчку можно менять
 <<<<<<< HEAD
+<<<<<<< HEAD
     return abs_changed, ord_changed
 >>>>>>> ac9774b (add MNK HM 26.10.23)
 =======
     return abscissa, ordinates
 >>>>>>> 9aab8e6 (add 27.10.23 MNK HM)
+=======
+    return abscissa, ordinates
+>>>>>>> 4e5463d (add 27.10.23 MNK HM)
 
 
 # служебная функция для получения статистик
@@ -328,12 +346,16 @@ def _get_lsm_statistics(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     event_logger.info("Started calculating average components")
 =======
 >>>>>>> ac9774b (add MNK HM 26.10.23)
 =======
     event_logger.info("Started calculating average components")
 >>>>>>> 9aab8e6 (add 27.10.23 MNK HM)
+=======
+    event_logger.info("Started calculating average components")
+>>>>>>> 4e5463d (add 27.10.23 MNK HM)
     n = len(abscissa)
 
     abscissa_mean = sum(abscissa)/n
@@ -375,6 +397,7 @@ def _get_lsm_description(
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     stata = _get_lsm_statistics(abscissa, ordinates)
 =======
     event_logger.info("Started calculating")
@@ -384,12 +407,16 @@ def _get_lsm_description(
 =======
     stata = _get_lsm_statistics(abscissa, ordinates)
 >>>>>>> 9aab8e6 (add 27.10.23 MNK HM)
+=======
+    stata = _get_lsm_statistics(abscissa, ordinates)
+>>>>>>> 4e5463d (add 27.10.23 MNK HM)
     av_abs = stata.abscissa_mean
     av_ord = stata.ordinate_mean
     av_qrt_abs = stata.abs_squared_mean
     av_product = stata.product_mean
 
     incline = (av_product - av_abs * av_ord) / (av_qrt_abs - av_abs**2)
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     event_logger.info("Line: Incline calculated")
@@ -405,6 +432,11 @@ def _get_lsm_description(
     shift = av_ord - incline * av_abs
     event_logger.info("Line: Shift calculated")
 >>>>>>> 9aab8e6 (add 27.10.23 MNK HM)
+=======
+    event_logger.info("Line: Incline calculated")
+    shift = av_ord - incline * av_abs
+    event_logger.info("Line: Shift calculated")
+>>>>>>> 4e5463d (add 27.10.23 MNK HM)
 
     disp_res = 0
     for i in range(n):
@@ -412,6 +444,7 @@ def _get_lsm_description(
     disp_res /= (n - 2)
 
     incline_error = (disp_res / (n * (av_qrt_abs - av_abs**2))) ** 0.5
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
     event_logger.info("Line: Incline error calculated")
@@ -430,6 +463,12 @@ def _get_lsm_description(
     shift_error = ((disp_res * av_qrt_abs) / (n * (av_qrt_abs - av_abs**2))) ** 0.5
     event_logger.info("Line: Shift error calculated")
 >>>>>>> 9aab8e6 (add 27.10.23 MNK HM)
+=======
+    event_logger.info("Line: Incline error calculated")
+
+    shift_error = ((disp_res * av_qrt_abs) / (n * (av_qrt_abs - av_abs**2))) ** 0.5
+    event_logger.info("Line: Shift error calculated")
+>>>>>>> 4e5463d (add 27.10.23 MNK HM)
 
     # ваш код
     # эту строчку можно менять
