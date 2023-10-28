@@ -26,27 +26,34 @@
 
 notes = {'home' : []}
 
+def add_note(note_name, *sentences):
+    if not( note_name in notes):
+        notes[note_name] = []
+    for sent in sentences:
+        notes[note_name].append(sent)
+
+def get_note(note_name='home'):
+    print(*notes[note_name], sep = ' a еще кстати говоря ')
 
 
 
 
 
+add_note('home', "wash dishes", "cook dinner")
+add_note('store', 'bread', 'butter', 'milk')
+add_note('movies', 'Barbie', 'Oppenheimer', 'Dark Knight')
 
-# add_note('home', "wash dishes", "cook dinner")
-# add_note('store', 'bread', 'butter', 'milk')
-# add_note('movies', 'Barbie', 'Oppenheimer', 'Dark Knight')
-
-# get_note()          # wash dishes cook dinner
-# get_note('home')    # wash dishes cook dinner
-# get_note('store')   # bread butter milk
-# get_note('movies')  # Barbie Oppenheimer Dark Knight
+get_note()          # wash dishes cook dinner
+get_note('home')    # wash dishes cook dinner
+get_note('store')   # bread butter milk
+get_note('movies')  # Barbie Oppenheimer Dark Knight
 
 
-# add_note('home', "clean window")
-# add_note('store', 'icecream')
-# add_note('movies', 'Back To The Future')
+add_note('home', "clean window")
+add_note('store', 'icecream')
+add_note('movies', 'Back To The Future')
 
-# get_note()          # wash dishes cook dinner clean window
-# get_note('home')    # wash dishes cook dinner clean window
-# get_note('store')   # bread butter milk icecream
-# get_note('movies')  # Barbie Oppenheimer Dark Knight Back To The Future
+get_note()          # wash dishes cook dinner clean window
+get_note('home')    # wash dishes cook dinner clean window
+get_note('store')   # bread butter milk icecream
+get_note('movies')  # Barbie Oppenheimer Dark Knight Back To The Future
