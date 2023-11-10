@@ -6,8 +6,9 @@
 from typing import Iterable
 from time import sleep, time
 
+
 def wheel(time_limit: float, pause: float):
-    """ Отрисовка спиннера.
+    """ Отрисовка спиннера.   (Имеется в виду анимация загрузки, как например при загрузке игры)
 
         Печатает на экран надпись: 'Thinking: <symbol>',
         где вместо <symbol> последовательно появляются знаки: \, |, /, -, 
@@ -22,4 +23,22 @@ def wheel(time_limit: float, pause: float):
         Выход:
             None
     """
+    def animation():
+        anim_msv = ["\\", "|", "/", "—"]  # первый слеш нужно "экранировать", 
+                                        # чтобы мы могли его вывести как строку, а не как спец символ
+        i = 0
+        while True:
+            yield anim_msv[i]
+            i += 1
+            i = i%4
+    symbol = animation()
+    i = 0
+    time0 = time()
+    while time() - time0 < time_limit:
+        print( " Loading:", next(symbol), end="\r" )
+        sleep(pause)
+        i += 1
+    print(" Loading complited", end="\r")
     pass
+
+wheel(10, 0)

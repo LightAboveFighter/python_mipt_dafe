@@ -15,3 +15,22 @@
 # print(next(generator_chars))  # 'b'
 # print(next(generator_chars))  # 'c'
 # print(next(generator_chars))  # 'a'
+
+def circ_generator(chars):
+    length = len(chars)
+    i = 0
+    while True:
+        yield chars[i]
+        i += 1
+        i = i%length
+
+chars = ['a', 'b', 'c']
+generator_chars = circ_generator(chars)
+print(next(generator_chars))  # 'a'
+print(next(generator_chars))  # 'b'
+print(next(generator_chars))  # 'c'
+print(next(generator_chars))  # 'a'
+print(next(generator_chars))  # 'b'
+print(next(generator_chars))  # 'c'
+print(next(generator_chars))  # 'a'
+
