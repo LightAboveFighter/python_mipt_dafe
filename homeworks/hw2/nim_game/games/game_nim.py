@@ -11,29 +11,26 @@ class GameNim:
     _agent: Agent                       # бот
 
     def __init__(self, path_to_config: str) -> None:
-        file = open(path_to_config, "r")
-        text = file.readline()
-        for i in range(len(text)-14):
-            if text[i:i+12] == "heaps_amount":
-                heaps_amount = text[i+14]
-                j = 1
-                while text[i+14+j] != ",":
-                    heaps_amount += text[i+14+j]
-                    j += 1
-                self._environment = EnvironmentNim(int(heaps_amount))
-            if text[i:i+14] == "opponent_level":
-                self._agent = Agent(text[i+17:i+21])
+        with open(path_to_config, "w") as file:
+            text = json.load(file)
+            heaps_amount = int(text["heaps_amount"])
+            opponent_level = str(text["opponent_level"])
+            GameNim._environment = EnvironmentNim(heaps_amount)
+            GameNim._agent = Agent(opponent_level)
 
     def make_steps(self, player_step: NimStateChange) -> GameState:
+        Game_State = GameState()
         self._environment.change_state(player_step)
         if self.is_game_finished():
-            return GameState(Players.USER, player_step)
+            Game_State.winner = Players.USER.value
+            return Game_State
         step = self._agent.make_step(self._environment.get_state())
         self._environment.change_state(step)
+        Game_State.heaps_state = self._environment.get_state()
+        Game_State.opponent_step = step
         if self.is_game_finished():
-            return GameState(Players.BOT, step, self._environment.get_state())
-        return GameState(None, step, self._environment.get_state())
-        pass
+            Game_State.winner = Players.BOT.value
+        return Game_State
 
     def is_game_finished(self) -> bool:
         return not any(self._environment.get_state())
