@@ -17,18 +17,23 @@ class EnvironmentNim:
     def __init__(self, heaps_amount: int) -> None:
 
         if heaps_amount < 2 or heaps_amount > 10:
-            raise ValueError("Incorrect heaps amount")
-        EnvironmentNim._heaps = [0]*heaps_amount
-        for i in range(len(EnvironmentNim._heaps)):
-            EnvironmentNim._heaps[i] = randint(STONE_AMOUNT_MIN, STONE_AMOUNT_MAX)
+            raise ValueError
+        EnvironmentNim._heaps = [randint(STONE_AMOUNT_MIN,
+                                        STONE_AMOUNT_MAX) for _ in range(heaps_amount)]
+
 
     def get_state(self) -> list[int]:
-        return EnvironmentNim._heaps
+        """
+        Получение текущего состояния кучек
+
+        :return: копия списка с кучек
+        """
+        return self._heaps
+    
     def change_state(self, state_change: NimStateChange) -> None:
 
-        if state_change.heap_id < 0 or state_change.heap_id > len(EnvironmentNim._heaps):
-            raise ValueError("Decraasing from incorrect heap")
-        if (state_change.decrease < 1 or state_change.decrease >
-        EnvironmentNim._heaps[state_change.heap_id]):
+        if state_change.heap_id < 0 or state_change.heap_id >= len(EnvironmentNim._heaps):
+            raise ValueError("Decreasing from incorrect heap")
+        if (state_change.decrease < 1 or state_change.decrease > self._heaps[state_change.heap_id]):
             raise ValueError("Decreasing incorrect num of stones")
-        EnvironmentNim._heaps[state_change.heap_id] -= state_change.decrease
+        self._heaps[state_change.heap_id] -= state_change.decrease

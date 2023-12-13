@@ -28,15 +28,15 @@ class GameNim:
         self._environment.change_state(player_step)
         if self.is_game_finished():
             return GameState(Players.USER, player_step)
-        step = self._agent.make_step(self._environment.get_state)
+        step = self._agent.make_step(self._environment.get_state())
         self._environment.change_state(step)
         if self.is_game_finished():
-            return GameState(Players.BOT, step, self._environment.get_state)
-        return GameState(None, step, self._environment.get_state)
+            return GameState(Players.BOT, step, self._environment.get_state())
+        return GameState(None, step, self._environment.get_state())
         pass
 
     def is_game_finished(self) -> bool:
-        return not any(self._environment.get_state)
+        return not any(self._environment.get_state())
 
     @property
     def heaps_state(self) -> list[int]:
