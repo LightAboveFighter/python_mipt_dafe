@@ -11,7 +11,7 @@ class GameNim:
     _agent: Agent                       # бот
 
     def __init__(self, path_to_config: str) -> None:
-        with open(path_to_config, "w") as file:
+        with open(path_to_config, "r") as file:
             text = json.load(file)
             heaps_amount = int(text["heaps_amount"])
             opponent_level = str(text["opponent_level"])
@@ -20,16 +20,16 @@ class GameNim:
 
     def make_steps(self, player_step: NimStateChange) -> GameState:
         Game_State = GameState()
-        self._environment.change_state(player_step)
+        self._environment.change_state(NimStateChange(player_step.heap_id-1, player_step.decrease))
         if self.is_game_finished():
-            Game_State.winner = Players.USER.value
+            Game_State.winner = Players.USER
             return Game_State
         step = self._agent.make_step(self._environment.get_state())
         self._environment.change_state(step)
         Game_State.heaps_state = self._environment.get_state()
-        Game_State.opponent_step = step
+        Game_State.opponent_step = NimStateChange(step.heap_id + 1, step.decrease)
         if self.is_game_finished():
-            Game_State.winner = Players.BOT.value
+            Game_State.winner = Players.BOT
         return Game_State
 
     def is_game_finished(self) -> bool:
